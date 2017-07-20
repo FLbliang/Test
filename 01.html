@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>Test</title>
+		<script src="js/my.js" type="text/javascript" charset="utf-8"></script>
+		<style type="text/css">
+			* {
+				padding: 0px;
+				margin: 0px;
+				list-style: none;
+				text-decoration: none;
+			}
+			
+			body {
+				background: greenyellow;
+				width: 100%;
+				height: 100%;
+			}
+			
+			.box {
+				width: 100%;
+				height: 620px;
+			}
+			
+			.show {
+				margin: 0px auto;
+				width: 95%;
+				height: 100%;
+				/*border: 3px solid orangered;*/
+				position: relative;
+			}
+			
+			.show li {
+				width: 200px;
+				height: 100px;
+				left: 0px;
+				z-index: 1;
+				opacity: 1;
+				position: absolute;
+			}
+			
+			.show li img {
+				width: 100%;
+				height: 100%;
+			}
+			
+			.input {
+				text-align: center;
+				position: absolute;
+				width: 100px;
+				height: 100px;
+				color: deepskyblue;
+				font-size: 150px;
+				font-weight: 900;
+				top: 10%;
+				z-index: 66;
+			}
+			
+			.btn {
+				/*background: #CCCCCC;*/
+				width: 280px;
+				height: 50px;
+				position: absolute;
+				bottom: 50px;
+				z-index: 66;
+			}
+			
+			.btn li {
+				width: 20px;
+				height: 20px;
+				border-radius: 20px;
+				margin-left: 30px;
+				float: left;
+			}
+			
+			.init-color {
+				background: #999999;
+			}
+			
+			.turn-color {
+				background: red;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="box">
+			<ul class="show">
+				<li><img src="img/1.jpg" alt="" /></li>
+				<li><img src="img/2.jpg" alt="" /></li>
+				<li><img src="img/3.jpg" alt="" /></li>
+				<li><img src="img/4.jpg" alt="" /></li>
+				<li><img src="img/5.jpg" alt="" /></li>
+			</ul>
+			<ul class="btn">
+				<li></li>
+				<li></li>
+				<li></li>
+				<li></li>
+				<li></li>
+			</ul>
+			<a href="javascript:" class="input">&lt;</a>
+			<a href="javascript:" class="input" style="right: 0px;">&gt;</a>
+		</div>
+	</body>
+	<script type="text/javascript">
+		window.onload = function() {
+			var oBox = $(".box");
+			var oLi = $(".show li", true);
+			var oBtn = $(".btn li", true);
+			var box_width = $(".show").offsetWidth;
+			var oInput = $(".input", true);
+			var timer = null;
+			var flag = "left";
+			var currentIndex = 0;
+			var jsons = [{
+				left: Math.floor((box_width / 3) / 5),
+				top: Math.floor((box_width / 3) / 6),
+				width: Math.floor(box_width / 3),
+				height: Math.floor((box_width / 3) / 2),
+				opacity: 0.6,
+				zIndex: 2,
+			}, {
+				top: Math.floor(box_width / 10),
+				left: 0,
+				width: Math.floor(box_width / 2),
+				height: Math.floor((box_width / 2) / 2),
+				opacity: 0.8,
+				zIndex: 4,
+			}, {
+				top: Math.floor($(".box").offsetHeight - (box_width / 1.5) / 2),
+				left: Math.floor((box_width / 1.5) / 4),
+				width: Math.floor(box_width / 1.5),
+				height: Math.floor((box_width / 1.5) / 2),
+				opacity: 1,
+				zIndex: 6
+			}, {
+				top: Math.floor(box_width / 10),
+				left: Math.floor(box_width / 2),
+				width: Math.floor(box_width / 2),
+				height: Math.floor((box_width / 2) / 2),
+				opacity: 0.8,
+				zIndex: 4,
+			}, {
+				left: Math.floor(box_width - box_width / 3 - (box_width / 3) / 5),
+				top: Math.floor((box_width / 3) / 6),
+				width: Math.floor(box_width / 3),
+				height: Math.floor((box_width / 3) / 2),
+				opacity: 0.6,
+				zIndex: 2,
+			}];
+
+			init();
+			autoPlay();
+
+			oInput[0].onclick = function() {
+				if(!judge()) {
+					return;
+				}
+				turnLeft(10, true);
+				flag = "left";
+			}
+
+			oInput[1].onclick = function() {
+				if(!judge()) {
+					return;
+				}
+				turnRight(10, true);
+				flag = "right";
+			}
+
+			function judge() {
+				for(var i = 0; i < oLi.length; i++) {
+					for(var attr in jsons[i]) {
+						if(jsons[i][attr] != parseFloat(getStyle(oLi[i], attr))) {
+							return false;
+						}
+					}
+				}
+				return true;
+			}
+
+			function autoPlay() {
+				clearInterval(timer);
+				timer = setInterval(function() {
+					flag == "left" ? turnLeft(50, true) : turnRight(50, true);
+				}, 1600);
+			}
+
+			function turnLeft(speed, isAuto) {
+				if(!judge()) {
+					return false;
+				}
+				isAuto ? changeIndex("left") : 0;
+				changeJson("left");
+				multAnimate(oLi, jsons, speed);
+				return true;
+			}
+
+			function turnRight(speed, isAuto) {
+				if(!judge()) {
+					return false;
+				}
+				isAuto ? changeIndex("right") : 0;
+				changeJson("right");
+				multAnimate(oLi, jsons, speed);
+				return true;
+			}
+
+			function changeIndex(flag) {
+				if(flag == "right") {
+					currentIndex = ++currentIndex % oLi.length;
+				} else {
+					currentIndex - 1 >= 0 ? currentIndex-- : currentIndex = oLi.length - 1;
+				}
+				changeBtn();
+
+			}
+
+			function changeJson(flag) {
+				if(flag == "right") {
+					var tmp = jsons[0];
+					for(var i = 0; i < jsons.length - 1; i++) {
+						jsons[i] = jsons[i + 1];
+					}
+					jsons[jsons.length - 1] = tmp;
+				} else {
+					var tmp = jsons[jsons.length - 1];
+					for(var i = jsons.length - 1; i > 0; i--) {
+						jsons[i] = jsons[i - 1];
+					}
+					jsons[0] = tmp;
+				}
+			}
+
+			function changeBtn() {
+				for(var i = 0; i < oBtn.length; i++) {
+					oBtn[i].setAttribute("class", "init-color");
+				}
+				oBtn[currentIndex].setAttribute("class", "turn-color");
+			}
+
+			function init() {
+				btnClick();
+				var oBtnBox = $(".btn");
+				setStyle(oBtnBox, "left", (oBox.offsetWidth - oBtnBox.offsetWidth) / 2);
+
+				for(var i = 0; i < oLi.length; i++) {
+					for(var attr in jsons[i]) {
+						setStyle(oLi[i], attr, jsons[i][attr]);
+					}
+
+					oBtn[i].setAttribute("class", "init-color");
+					oBtn[i].index = i;
+				}
+				oBtn[0].click();
+
+			}
+
+			function btnClick() {
+				for(var i = 0; i < oBtn.length; i++) {
+
+					oBtn[i].onclick = function() {
+						if(!judge()) {
+							return;
+						}
+						var sum = this.index - currentIndex;
+						currentIndex = this.index;
+						var fn = sum > 0 ? turnRight : turnLeft;
+						sum = Math.abs(sum);
+						clearInterval(timer);
+						changeBtn();
+						if(!sum) {
+							autoPlay();
+							return;
+						}
+						timer = setInterval(function() {
+							if(fn(5)) {
+								sum--;
+							}
+							if(sum == 0) {
+								clearInterval(timer);
+								autoPlay();
+							}
+						}, 10);
+
+					}
+				}
+
+			}
+
+		}
+	</script>
+
+</html>
